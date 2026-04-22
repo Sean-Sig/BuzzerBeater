@@ -9,21 +9,23 @@ import SwiftUI
 
 struct GameDetailView: View {
     var game: PlayoffGame
+    @Environment(\.colorScheme) var colorScheme
 
     var body: some View {
         ScrollView {
-            VStack(spacing: 20.0) {
+            VStack(spacing: 20) {
 
-                VStack(spacing: 16.0) {
+                // Score / Status hero
+                VStack(spacing: 16) {
                     Text(game.round.rawValue)
                         .font(.caption.weight(.semibold))
                         .foregroundStyle(.white)
-                        .padding(.horizontal, 12.0)
-                        .padding(.vertical, 5.0)
-                        .background(Color(hex: "#1D428A"))
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 5)
+                        .background(.blue)
                         .clipShape(Capsule())
 
-                    HStack(spacing: .zero) {
+                    HStack(spacing: 0) {
                         DetailTeamColumn(
                             team: game.awayTeam,
                             isHome: false,
@@ -31,7 +33,7 @@ struct GameDetailView: View {
                                 > game.homeTeam.score,
                             showScore: game.status != .upcoming
                         )
-                        VStack(spacing: 6.0) {
+                        VStack(spacing: 6) {
                             switch game.status {
                             case .live:
                                 LiveBadge()
@@ -52,7 +54,7 @@ struct GameDetailView: View {
                                     .foregroundStyle(.secondary)
                             }
                         }
-                        .frame(width: 80.0)
+                        .frame(width: 80)
                         DetailTeamColumn(
                             team: game.homeTeam,
                             isHome: true,
@@ -62,8 +64,7 @@ struct GameDetailView: View {
                         )
                     }
 
-                    // Series status
-                    HStack(spacing: 8.0) {
+                    HStack(spacing: 8) {
                         seriesIndicator(wins: game.awayTeam.seriesWins)
                         Text(game.seriesLabel)
                             .font(.subheadline.weight(.semibold))
@@ -72,40 +73,68 @@ struct GameDetailView: View {
                     }
                 }
                 .padding()
-                .background(.background)
-                .clipShape(RoundedRectangle(cornerRadius: 20.0))
-                .shadow(color: .black.opacity(0.08), radius: 8.0, y: 3.0)
+                .background(Color(.secondarySystemGroupedBackground))
+                .clipShape(RoundedRectangle(cornerRadius: 20))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 20)
+                        .strokeBorder(
+                            Color.white.opacity(
+                                colorScheme == .dark ? 0.07 : 0
+                            ),
+                            lineWidth: 1
+                        )
+                )
+                .shadow(
+                    color: colorScheme == .dark
+                        ? .black.opacity(0.5) : .black.opacity(0.08),
+                    radius: colorScheme == .dark ? 14 : 8,
+                    y: 4
+                )
                 .padding(.horizontal)
 
                 // Game info
-                VStack(spacing: .zero) {
+                VStack(spacing: 0) {
                     InfoRow(
                         label: "Arena",
                         value: game.arena,
                         icon: "mappin.circle.fill"
                     )
-                    Divider().padding(.leading, 48.0)
+                    Divider().padding(.leading, 48)
                     InfoRow(
                         label: "Tipoff",
                         value: game.tipoff,
                         icon: "clock.fill"
                     )
-                    Divider().padding(.leading, 48.0)
+                    Divider().padding(.leading, 48)
                     InfoRow(label: "TV", value: game.broadcast, icon: "tv.fill")
-                    Divider().padding(.leading, 48.0)
+                    Divider().padding(.leading, 48)
                     InfoRow(
                         label: "Game",
                         value: "Game \(game.gameNumber)",
                         icon: "number.circle.fill"
                     )
                 }
-                .background(.background)
-                .clipShape(RoundedRectangle(cornerRadius: 16.0))
-                .shadow(color: .black.opacity(0.07), radius: 6.0, y: 2.0)
+                .background(Color(.secondarySystemGroupedBackground))
+                .clipShape(RoundedRectangle(cornerRadius: 16))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16)
+                        .strokeBorder(
+                            Color.white.opacity(
+                                colorScheme == .dark ? 0.07 : 0
+                            ),
+                            lineWidth: 1
+                        )
+                )
+                .shadow(
+                    color: colorScheme == .dark
+                        ? .black.opacity(0.4) : .black.opacity(0.07),
+                    radius: colorScheme == .dark ? 10 : 6,
+                    y: 2
+                )
                 .padding(.horizontal)
 
                 // Team records
-                VStack(alignment: .leading, spacing: .zero) {
+                VStack(alignment: .leading, spacing: 0) {
                     Text("Team Records")
                         .font(.headline)
                         .padding()
@@ -124,8 +153,8 @@ struct GameDetailView: View {
                                 .foregroundStyle(.secondary)
                         }
                         .frame(maxWidth: .infinity)
-                        Divider().frame(height: 60.0)
-                        VStack(spacing: 4.0) {
+                        Divider().frame(height: 60)
+                        VStack(spacing: 4) {
                             Text(game.homeTeam.abbreviation)
                                 .font(.title3.weight(.black))
                                 .foregroundStyle(
@@ -141,30 +170,44 @@ struct GameDetailView: View {
                     }
                     .padding()
                 }
-                .background(.background)
-                .clipShape(RoundedRectangle(cornerRadius: 16.0))
-                .shadow(color: .black.opacity(0.07), radius: 6.0, y: 2.0)
+                .background(Color(.secondarySystemGroupedBackground))
+                .clipShape(RoundedRectangle(cornerRadius: 16))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16)
+                        .strokeBorder(
+                            Color.white.opacity(
+                                colorScheme == .dark ? 0.07 : 0
+                            ),
+                            lineWidth: 1
+                        )
+                )
+                .shadow(
+                    color: colorScheme == .dark
+                        ? .black.opacity(0.4) : .black.opacity(0.07),
+                    radius: colorScheme == .dark ? 10 : 6,
+                    y: 2
+                )
                 .padding(.horizontal)
 
-                Spacer(minLength: 32.0)
+                Spacer(minLength: 32)
             }
-            .padding(.top, 12.0)
+            .padding(.top, 12)
             .frame(maxWidth: .infinity)
         }
+        .background(Color(.systemGroupedBackground))
         .navigationTitle("Game \(game.gameNumber)")
         .navigationBarTitleDisplayMode(.inline)
-        .background(Color(.systemGroupedBackground))
     }
 
     @ViewBuilder
     func seriesIndicator(wins: Int) -> some View {
-        HStack(spacing: 4.0) {
+        HStack(spacing: 4) {
             ForEach(0..<4, id: \.self) { i in
                 Circle()
                     .fill(
-                        i < wins ? Color.orange : Color.secondary.opacity(0.3)
+                        i < wins ? Color.orange : Color.secondary.opacity(0.25)
                     )
-                    .frame(width: 8.0, height: 8)
+                    .frame(width: 8, height: 8)
             }
         }
     }
@@ -177,13 +220,13 @@ struct DetailTeamColumn: View {
     var showScore: Bool
 
     var body: some View {
-        VStack(spacing: 8.0) {
+        VStack(spacing: 8) {
             ZStack {
                 Circle()
-                    .fill(Color(hex: team.primaryColor).opacity(0.15))
-                    .frame(width: 58.0, height: 58.0)
+                    .fill(Color(hex: team.primaryColor).opacity(0.2))
+                    .frame(width: 58, height: 58)
                 Text(team.abbreviation)
-                    .font(.system(size: 16.0, weight: .black))
+                    .font(.system(size: 16, weight: .black))
                     .foregroundStyle(Color(hex: team.primaryColor))
             }
             Text(
@@ -196,8 +239,8 @@ struct DetailTeamColumn: View {
                 .foregroundStyle(.tertiary)
             if showScore {
                 Text("\(team.score)")
-                    .font(.system(size: 40.0, weight: .black, design: .rounded))
-                    .foregroundStyle(isWinning ? .primary : .secondary)
+                    .font(.system(size: 40, weight: .black, design: .rounded))
+                    .foregroundStyle(isWinning ? .primary : .tertiary)
             }
         }
         .frame(maxWidth: .infinity)
@@ -210,11 +253,11 @@ struct InfoRow: View {
     var icon: String
 
     var body: some View {
-        HStack(spacing: 12.0) {
+        HStack(spacing: 12) {
             Image(systemName: icon)
-                .foregroundStyle(Color(hex: "#1D428A"))
-                .frame(width: 24.0)
-                .padding(.leading, 12.0)
+                .foregroundStyle(.blue)
+                .frame(width: 24)
+                .padding(.leading, 12)
             Text(label)
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
@@ -222,7 +265,7 @@ struct InfoRow: View {
             Text(value)
                 .font(.subheadline.weight(.medium))
         }
-        .padding(.vertical, 13.0)
-        .padding(.trailing, 16.0)
+        .padding(.vertical, 13)
+        .padding(.trailing, 16)
     }
 }

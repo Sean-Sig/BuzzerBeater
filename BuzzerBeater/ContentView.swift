@@ -9,6 +9,7 @@ import SwiftUI
 
 struct ContentView: View {
     @State var store = NBAStore()
+    @Environment(\.colorScheme) var colorScheme
 
     var body: some View {
         NavigationStack {
@@ -40,7 +41,7 @@ struct ContentView: View {
                         SectionHeader(
                             title: "Upcoming",
                             systemImage: "calendar",
-                            tint: Color(hex: "#1D428A")
+                            tint: .blue
                         )
                         .padding(.horizontal)
                         ScrollView(.horizontal, showsIndicators: false) {
@@ -86,6 +87,7 @@ struct ContentView: View {
                 .padding(.top, 8)
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
+            .background(Color(.systemGroupedBackground))
             .navigationTitle("NBA Playoffs")
             .navigationBarTitleDisplayMode(.large)
         }
@@ -111,6 +113,37 @@ struct SectionHeader: View {
     }
 }
 
+// MARK: - Card Background Modifier
+
+struct CardBackground: ViewModifier {
+    @Environment(\.colorScheme) var colorScheme
+
+    func body(content: Content) -> some View {
+        content
+            .background(Color(.secondarySystemGroupedBackground))
+            .clipShape(RoundedRectangle(cornerRadius: 16))
+            .shadow(
+                color: colorScheme == .dark
+                    ? .black.opacity(0.4) : .black.opacity(0.08),
+                radius: colorScheme == .dark ? 12 : 8,
+                y: colorScheme == .dark ? 4 : 3
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 16)
+                    .strokeBorder(
+                        Color.white.opacity(colorScheme == .dark ? 0.06 : 0),
+                        lineWidth: 1
+                    )
+            )
+    }
+}
+
+extension View {
+    func cardStyle() -> some View {
+        modifier(CardBackground())
+    }
+}
+
 // MARK: - Live Game Card
 
 struct LiveGameCard: View {
@@ -118,7 +151,6 @@ struct LiveGameCard: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            // Matchup row
             HStack(spacing: 0) {
                 TeamScoreColumn(
                     team: game.awayTeam,
@@ -158,9 +190,7 @@ struct LiveGameCard: View {
             .padding(.horizontal, 16)
             .padding(.vertical, 10)
         }
-        .background(.background)
-        .clipShape(RoundedRectangle(cornerRadius: 16))
-        .shadow(color: .black.opacity(0.09), radius: 8, y: 3)
+        .cardStyle()
     }
 }
 
@@ -172,7 +202,7 @@ struct TeamScoreColumn: View {
         VStack(spacing: 6) {
             ZStack {
                 Circle()
-                    .fill(Color(hex: team.primaryColor).opacity(0.15))
+                    .fill(Color(hex: team.primaryColor).opacity(0.2))
                     .frame(width: 46, height: 46)
                 Text(team.abbreviation)
                     .font(.system(size: 13, weight: .black))
@@ -186,7 +216,7 @@ struct TeamScoreColumn: View {
             .lineLimit(1)
             Text("\(team.score)")
                 .font(.system(size: 32, weight: .black, design: .rounded))
-                .foregroundStyle(isWinning ? .primary : .secondary)
+                .foregroundStyle(isWinning ? .primary : .tertiary)
         }
         .frame(maxWidth: .infinity)
     }
@@ -212,7 +242,7 @@ struct LiveBadge: View {
         }
         .padding(.horizontal, 8)
         .padding(.vertical, 4)
-        .background(.red.opacity(0.1))
+        .background(.red.opacity(0.15))
         .clipShape(Capsule())
     }
 }
@@ -229,7 +259,7 @@ struct UpcomingGameCard: View {
                 .foregroundStyle(.white)
                 .padding(.horizontal, 8)
                 .padding(.vertical, 3)
-                .background(Color(hex: "#1D428A"))
+                .background(.blue)
                 .clipShape(Capsule())
 
             HStack(spacing: 10) {
@@ -259,9 +289,7 @@ struct UpcomingGameCard: View {
         }
         .padding()
         .frame(width: 200, height: 185)
-        .background(.background)
-        .clipShape(RoundedRectangle(cornerRadius: 16))
-        .shadow(color: .black.opacity(0.08), radius: 6, y: 2)
+        .cardStyle()
     }
 }
 
@@ -272,7 +300,7 @@ struct CompactTeamBadge: View {
         VStack(spacing: 3) {
             ZStack {
                 Circle()
-                    .fill(Color(hex: team.primaryColor).opacity(0.15))
+                    .fill(Color(hex: team.primaryColor).opacity(0.2))
                     .frame(width: 36, height: 36)
                 Text(team.abbreviation)
                     .font(.system(size: 10, weight: .black))
@@ -289,10 +317,6 @@ struct CompactTeamBadge: View {
 
 struct PastGameCard: View {
     var game: PlayoffGame
-    var winner: TeamScore {
-        game.homeTeam.score > game.awayTeam.score
-            ? game.homeTeam : game.awayTeam
-    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -312,11 +336,9 @@ struct PastGameCard: View {
                     isWinner: game.awayTeam.score > game.homeTeam.score
                 )
                 Spacer()
-                VStack(spacing: 1) {
-                    Text("FINAL")
-                        .font(.caption2.weight(.bold))
-                        .foregroundStyle(.secondary)
-                }
+                Text("FINAL")
+                    .font(.caption2.weight(.bold))
+                    .foregroundStyle(.secondary)
                 Spacer()
                 FinalTeamRow(
                     team: game.homeTeam,
@@ -342,9 +364,7 @@ struct PastGameCard: View {
         }
         .padding()
         .frame(width: 240, height: 165)
-        .background(.background)
-        .clipShape(RoundedRectangle(cornerRadius: 16))
-        .shadow(color: .black.opacity(0.08), radius: 6, y: 2)
+        .cardStyle()
     }
 }
 
@@ -356,7 +376,7 @@ struct FinalTeamRow: View {
         VStack(spacing: 4) {
             ZStack {
                 Circle()
-                    .fill(Color(hex: team.primaryColor).opacity(0.15))
+                    .fill(Color(hex: team.primaryColor).opacity(0.2))
                     .frame(width: 34, height: 34)
                 Text(team.abbreviation)
                     .font(.system(size: 10, weight: .black))
@@ -364,7 +384,7 @@ struct FinalTeamRow: View {
             }
             Text("\(team.score)")
                 .font(.system(size: 20, weight: .black, design: .rounded))
-                .foregroundStyle(isWinner ? .primary : .secondary)
+                .foregroundStyle(isWinner ? .primary : .tertiary)
         }
     }
 }
