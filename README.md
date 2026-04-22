@@ -76,6 +76,10 @@ Designed to be easily extended with:
 
 ## 📸 Screenshots
 
+<p align="center">
+  <img src="BuzzerBeater/Screenshots/LightMode.png" width="250"/>
+  <img src="BuzzerBeater/Screenshots/DarkMode.png" width="250"/>
+</p>
 
 ---
 
