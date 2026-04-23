@@ -9,6 +9,19 @@ import SwiftUI
 
 struct ContentView: View {
     @State var store = NBAStore()
+
+    var body: some View {
+        TabView {
+            ScoresView(store: store)
+                .tabItem { Label("Scores", systemImage: "basketball.fill") }
+            RankingsView(store: store)
+                .tabItem { Label("Rankings", systemImage: "list.number") }
+        }
+    }
+}
+
+struct ScoresView: View {
+    var store: NBAStore
     @Environment(\.colorScheme) var colorScheme
 
     var body: some View {
