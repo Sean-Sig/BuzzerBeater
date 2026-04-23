@@ -77,9 +77,10 @@ Designed to be easily extended with:
 ## 📸 Screenshots
 
 <p align="center">
-  <img src="BuzzerBeater/Screenshots/LightMode.png" width="250"/>
-  <img src="BuzzerBeater/Screenshots/DarkMode.png" width="250"/>
- <img src="BuzzerBeater/Screenshots/PlayerRankings.png" width="250"/>
+  <img src="BuzzerBeater/Screenshots/LightMode.png" width="220"/>
+  <img src="BuzzerBeater/Screenshots/DarkMode.png" width="220"/>
+  <img src="BuzzerBeater/Screenshots/PlayerRankings.png" width="220"/>
+  <img src="BuzzerBeater/Screenshots/PlayerDetails.png" width="220"/>
 </p>
 
 ---
