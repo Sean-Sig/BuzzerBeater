@@ -69,6 +69,25 @@ struct PlayoffGame: Identifiable {
   var awayBoxScore: TeamBoxScore
 }
 
+struct NewsArticle: Identifiable {
+  var id = UUID()
+  var headline: String
+  var summary: String
+  var source: String
+  var timeAgo: String
+  var category: NewsCategory
+  var accentColor: String
+  var symbolName: String
+}
+
+enum NewsCategory: String, CaseIterable {
+  case all = "All"
+  case playoffs = "Playoffs"
+  case trades = "Trades"
+  case injury = "Injury"
+  case analysis = "Analysis"
+}
+
 enum PlayerPosition: String {
   case pointGuard = "PG"
   case shootingGuard = "SG"
@@ -105,6 +124,7 @@ class NBAStore {
   var pastGames: [PlayoffGame] { games.filter { $0.status == .final_ } }
 
   var players: [NBAPlayer] = samplePlayers
+  var articles: [NewsArticle] = sampleArticles
 
   func toggleFollow(_ player: NBAPlayer) {
     if followedPlayerIDs.contains(player.id) {
@@ -221,6 +241,99 @@ let sampleGames: [PlayoffGame] = [
     status: .final_, round: .firstRound, gameNumber: 4, seriesLabel: "MIL leads 2-1",
     arena: "Gainbridge Fieldhouse", tipoff: "Apr 20", quarter: "Final", clock: "", broadcast: "ESPN",
     homeBoxScore: emptyBoxScore, awayBoxScore: emptyBoxScore
+  ),
+]
+
+let sampleArticles: [NewsArticle] = [
+  NewsArticle(
+    headline: "SGA Drops 38 in OKC's Must-Win Game 6 Against Dallas",
+    summary: "Shai Gilgeous-Alexander put on a masterclass performance, scoring 38 points on 13-of-24 shooting to keep Oklahoma City's season alive. The Thunder superstar also added 7 assists and 2 steals in a dominant showing at Paycom Center.",
+    source: "ESPN",
+    timeAgo: "12m ago",
+    category: .playoffs,
+    accentColor: "#007AC1",
+    symbolName: "basketball.fill"
+  ),
+  NewsArticle(
+    headline: "Celtics Hold Off Heat in Gritty Game 5 to Take 3-1 Series Lead",
+    summary: "Boston's depth proved to be the difference as the Celtics survived a spirited Miami comeback attempt in the third quarter. Jayson Tatum led all scorers with 28 points while Jrue Holiday's defensive presence limited Jimmy Butler to just 5 fourth-quarter points.",
+    source: "The Athletic",
+    timeAgo: "34m ago",
+    category: .playoffs,
+    accentColor: "#007A33",
+    symbolName: "trophy.fill"
+  ),
+  NewsArticle(
+    headline: "Luka Dončić Dealing with Ankle Soreness Ahead of Game 7",
+    summary: "Dallas Mavericks star Luka Dončić is listed as questionable for the potential series finale after tweaking his left ankle late in Game 6. The team's medical staff is cautiously optimistic he will be available, though his effectiveness may be limited.",
+    source: "NBA.com",
+    timeAgo: "1h ago",
+    category: .injury,
+    accentColor: "#C8102E",
+    symbolName: "cross.circle.fill"
+  ),
+  NewsArticle(
+    headline: "Nikola Jokić Wins Third MVP in Four Seasons",
+    summary: "Denver Nuggets center Nikola Jokić has been named the 2024–25 NBA Most Valuable Player, his third MVP award in four years. Jokić posted historic numbers with 29.6 points, 13.0 rebounds, and 10.2 assists per game — becoming just the second player ever to average a 29-13-10 triple-double over a full season.",
+    source: "ESPN",
+    timeAgo: "2h ago",
+    category: .analysis,
+    accentColor: "#FEC524",
+    symbolName: "star.fill"
+  ),
+  NewsArticle(
+    headline: "Cavaliers Poised to Close Out Orlando in Game 5 at Home",
+    summary: "Cleveland enters tomorrow's game as heavy favorites to eliminate the Magic and advance to the second round. Donovan Mitchell has averaged 31.4 points over the series and the Cavaliers' league-best home record of 37-4 bodes well for a clinching win at Rocket Mortgage FieldHouse.",
+    source: "Bleacher Report",
+    timeAgo: "3h ago",
+    category: .playoffs,
+    accentColor: "#860038",
+    symbolName: "flame.fill"
+  ),
+  NewsArticle(
+    headline: "Knicks on Brink of First Sweep Since 1994 as Pistons Struggle",
+    summary: "New York leads Detroit 3-0 and is one win away from sweeping a playoff series for the first time in three decades. Jalen Brunson has been exceptional, averaging 28.7 points and 7.3 assists, while the Knicks' defense has held the Pistons to just 98.3 points per game.",
+    source: "NY Post",
+    timeAgo: "4h ago",
+    category: .playoffs,
+    accentColor: "#006BB6",
+    symbolName: "basketball"
+  ),
+  NewsArticle(
+    headline: "Sources: Warriors Exploring Summer Trade Options Around Curry",
+    summary: "Golden State is reportedly open to facilitating a trade around the roster rather than its core, with league sources indicating the Warriors want to add a second star to play alongside Stephen Curry for one final championship run. Multiple contenders have expressed interest in acquiring veterans on expiring deals.",
+    source: "The Athletic",
+    timeAgo: "5h ago",
+    category: .trades,
+    accentColor: "#FFC72C",
+    symbolName: "arrow.left.arrow.right"
+  ),
+  NewsArticle(
+    headline: "Anthony Edwards Named to All-NBA First Team for Second Straight Year",
+    summary: "Minnesota Timberwolves guard Anthony Edwards earned his second consecutive All-NBA First Team selection after a breakout season. The 23-year-old averaged 27.1 points, 5.4 rebounds, and 5.1 assists, cementing his status as the face of the next generation of NBA superstars.",
+    source: "NBA.com",
+    timeAgo: "6h ago",
+    category: .analysis,
+    accentColor: "#0C2340",
+    symbolName: "medal.fill"
+  ),
+  NewsArticle(
+    headline: "Giannis Returns to Practice, Cleared for Game 4",
+    summary: "Milwaukee Bucks star Giannis Antetokounmpo has been officially cleared to play in Game 4 after missing two games with a calf strain. The Greek Freak's return is a massive boost for the Bucks, who fell behind 2-1 in the series without him against the Indiana Pacers.",
+    source: "ESPN",
+    timeAgo: "8h ago",
+    category: .injury,
+    accentColor: "#00471B",
+    symbolName: "cross.circle.fill"
+  ),
+  NewsArticle(
+    headline: "How the OKC Thunder Built the NBA's Best Record at 68-14",
+    summary: "An in-depth look at how first-year head coach Mark Daigneault constructed a historically efficient defensive system around Shai Gilgeous-Alexander. Oklahoma City's blend of elite two-way talent, depth, and culture has produced the best record in the Western Conference by a wide margin.",
+    source: "The Ringer",
+    timeAgo: "Yesterday",
+    category: .analysis,
+    accentColor: "#007AC1",
+    symbolName: "chart.bar.fill"
   ),
 ]
 
