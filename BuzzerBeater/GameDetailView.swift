@@ -10,12 +10,23 @@ import SwiftUI
 struct GameDetailView: View {
     var game: PlayoffGame
     @Environment(\.colorScheme) var colorScheme
+    @State private var selectedTeam: TeamSide = .home
+
+    enum TeamSide { case home, away }
+
+    var activeBoxScore: TeamBoxScore {
+        selectedTeam == .home ? game.homeBoxScore : game.awayBoxScore
+    }
+
+    var activeTeam: TeamScore {
+        selectedTeam == .home ? game.homeTeam : game.awayTeam
+    }
 
     var body: some View {
         ScrollView {
-            VStack(spacing: 20) {
+            VStack(spacing: 16) {
 
-                // Score / Status hero
+                // MARK: Score Hero
                 VStack(spacing: 16) {
                     Text(game.round.rawValue)
                         .font(.caption.weight(.semibold))
@@ -73,26 +84,10 @@ struct GameDetailView: View {
                     }
                 }
                 .padding()
-                .background(Color(.secondarySystemGroupedBackground))
-                .clipShape(RoundedRectangle(cornerRadius: 20))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 20)
-                        .strokeBorder(
-                            Color.white.opacity(
-                                colorScheme == .dark ? 0.07 : 0
-                            ),
-                            lineWidth: 1
-                        )
-                )
-                .shadow(
-                    color: colorScheme == .dark
-                        ? .black.opacity(0.5) : .black.opacity(0.08),
-                    radius: colorScheme == .dark ? 14 : 8,
-                    y: 4
-                )
+                .cardSection(colorScheme: colorScheme, radius: 20)
                 .padding(.horizontal)
 
-                // Game info
+                // MARK: Game Info
                 VStack(spacing: 0) {
                     InfoRow(
                         label: "Arena",
@@ -114,80 +109,84 @@ struct GameDetailView: View {
                         icon: "number.circle.fill"
                     )
                 }
-                .background(Color(.secondarySystemGroupedBackground))
-                .clipShape(RoundedRectangle(cornerRadius: 16))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 16)
-                        .strokeBorder(
-                            Color.white.opacity(
-                                colorScheme == .dark ? 0.07 : 0
-                            ),
-                            lineWidth: 1
-                        )
-                )
-                .shadow(
-                    color: colorScheme == .dark
-                        ? .black.opacity(0.4) : .black.opacity(0.07),
-                    radius: colorScheme == .dark ? 10 : 6,
-                    y: 2
-                )
+                .cardSection(colorScheme: colorScheme)
                 .padding(.horizontal)
 
-                // Team records
-                VStack(alignment: .leading, spacing: 0) {
-                    Text("Team Records")
-                        .font(.headline)
+                // MARK: Box Score
+                if !game.homeBoxScore.players.isEmpty {
+                    VStack(alignment: .leading, spacing: 0) {
+
+                        // Team picker
+                        HStack {
+                            Text("Box Score")
+                                .font(.headline)
+                            Spacer()
+                            Picker("Team", selection: $selectedTeam) {
+                                Text(game.awayTeam.abbreviation).tag(
+                                    TeamSide.away
+                                )
+                                Text(game.homeTeam.abbreviation).tag(
+                                    TeamSide.home
+                                )
+                            }
+                            .pickerStyle(.segmented)
+                            .frame(width: 130)
+                        }
                         .padding()
-                    Divider()
-                    HStack {
-                        VStack(spacing: 4) {
-                            Text(game.awayTeam.abbreviation)
-                                .font(.title3.weight(.black))
-                                .foregroundStyle(
-                                    Color(hex: game.awayTeam.primaryColor)
-                                )
-                            Text(game.awayTeam.record)
-                                .font(.title2.weight(.bold))
-                            Text("Record")
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                        }
-                        .frame(maxWidth: .infinity)
-                        Divider().frame(height: 60)
-                        VStack(spacing: 4) {
-                            Text(game.homeTeam.abbreviation)
-                                .font(.title3.weight(.black))
-                                .foregroundStyle(
-                                    Color(hex: game.homeTeam.primaryColor)
-                                )
-                            Text(game.homeTeam.record)
-                                .font(.title2.weight(.bold))
-                            Text("Record")
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                        }
-                        .frame(maxWidth: .infinity)
-                    }
-                    .padding()
-                }
-                .background(Color(.secondarySystemGroupedBackground))
-                .clipShape(RoundedRectangle(cornerRadius: 16))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 16)
-                        .strokeBorder(
-                            Color.white.opacity(
-                                colorScheme == .dark ? 0.07 : 0
-                            ),
-                            lineWidth: 1
+
+                        Divider()
+
+                        // Stat header
+                        StatHeaderRow(
+                            teamColor: Color(hex: activeTeam.primaryColor)
                         )
-                )
-                .shadow(
-                    color: colorScheme == .dark
-                        ? .black.opacity(0.4) : .black.opacity(0.07),
-                    radius: colorScheme == .dark ? 10 : 6,
-                    y: 2
-                )
-                .padding(.horizontal)
+
+                        Divider()
+
+                        // Starters
+                        if !activeBoxScore.starters.isEmpty {
+                            SectionLabel(title: "STARTERS")
+                            ForEach(activeBoxScore.starters) { player in
+                                PlayerStatRow(
+                                    stat: player,
+                                    teamColor: Color(
+                                        hex: activeTeam.primaryColor
+                                    )
+                                )
+                                if player.id != activeBoxScore.starters.last?.id
+                                {
+                                    Divider().padding(.leading, 16)
+                                }
+                            }
+                        }
+
+                        // Bench
+                        if !activeBoxScore.bench.isEmpty {
+                            Divider()
+                            SectionLabel(title: "BENCH")
+                            ForEach(activeBoxScore.bench) { player in
+                                PlayerStatRow(
+                                    stat: player,
+                                    teamColor: Color(
+                                        hex: activeTeam.primaryColor
+                                    )
+                                )
+                                if player.id != activeBoxScore.bench.last?.id {
+                                    Divider().padding(.leading, 16)
+                                }
+                            }
+                        }
+
+                        // Team totals
+                        Divider()
+                        TeamTotalsRow(
+                            boxScore: activeBoxScore,
+                            teamColor: Color(hex: activeTeam.primaryColor)
+                        )
+                    }
+                    .cardSection(colorScheme: colorScheme)
+                    .padding(.horizontal)
+                }
 
                 Spacer(minLength: 32)
             }
@@ -212,6 +211,126 @@ struct GameDetailView: View {
         }
     }
 }
+
+// MARK: - Box Score Subviews
+
+struct SectionLabel: View {
+    var title: String
+    var body: some View {
+        Text(title)
+            .font(.caption2.weight(.bold))
+            .foregroundStyle(.secondary)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 6)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(Color(.tertiarySystemGroupedBackground))
+    }
+}
+
+struct StatHeaderRow: View {
+    var teamColor: Color
+    var body: some View {
+        HStack(spacing: 0) {
+            Text("PLAYER")
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.leading, 16)
+            Group {
+                Text("MIN").frame(width: 36)
+                Text("PTS").frame(width: 36)
+                Text("REB").frame(width: 36)
+                Text("AST").frame(width: 36)
+                Text("STL").frame(width: 30)
+                Text("BLK").frame(width: 30)
+                Text("TO").frame(width: 30)
+                Text("FG").frame(width: 44).padding(.trailing, 8)
+            }
+        }
+        .font(.caption2.weight(.bold))
+        .foregroundStyle(.secondary)
+        .padding(.vertical, 7)
+    }
+}
+
+struct PlayerStatRow: View {
+    var stat: PlayerGameStat
+    var teamColor: Color
+
+    var body: some View {
+        HStack(spacing: 0) {
+            VStack(alignment: .leading, spacing: 1) {
+                Text(stat.name.components(separatedBy: " ").last ?? stat.name)
+                    .font(.caption.weight(.semibold))
+                    .lineLimit(1)
+                Text(stat.position)
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.leading, 16)
+
+            Group {
+                Text(stat.minutes).frame(width: 36)
+                Text("\(stat.points)")
+                    .fontWeight(stat.points >= 20 ? .bold : .regular)
+                    .foregroundStyle(stat.points >= 20 ? teamColor : .primary)
+                    .frame(width: 36)
+                Text("\(stat.rebounds)").frame(width: 36)
+                Text("\(stat.assists)").frame(width: 36)
+                Text("\(stat.steals)").frame(width: 30)
+                Text("\(stat.blocks)").frame(width: 30)
+                Text("\(stat.turnovers)").frame(width: 30)
+                Text("\(stat.fgm)/\(stat.fga)")
+                    .foregroundStyle(.secondary)
+                    .frame(width: 44)
+                    .padding(.trailing, 8)
+            }
+        }
+        .font(.caption)
+        .padding(.vertical, 10)
+    }
+}
+
+struct TeamTotalsRow: View {
+    var boxScore: TeamBoxScore
+    var teamColor: Color
+
+    var totPts: Int { boxScore.players.reduce(0) { $0 + $1.points } }
+    var totReb: Int { boxScore.players.reduce(0) { $0 + $1.rebounds } }
+    var totAst: Int { boxScore.players.reduce(0) { $0 + $1.assists } }
+    var totStl: Int { boxScore.players.reduce(0) { $0 + $1.steals } }
+    var totBlk: Int { boxScore.players.reduce(0) { $0 + $1.blocks } }
+    var totTO: Int { boxScore.players.reduce(0) { $0 + $1.turnovers } }
+    var totFGM: Int { boxScore.players.reduce(0) { $0 + $1.fgm } }
+    var totFGA: Int { boxScore.players.reduce(0) { $0 + $1.fga } }
+
+    var body: some View {
+        HStack(spacing: 0) {
+            Text("TOTALS")
+                .font(.caption2.weight(.bold))
+                .foregroundStyle(.secondary)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.leading, 16)
+            Group {
+                Text("—").frame(width: 36)
+                Text("\(totPts)").foregroundStyle(teamColor).frame(width: 36)
+                Text("\(totReb)").frame(width: 36)
+                Text("\(totAst)").frame(width: 36)
+                Text("\(totStl)").frame(width: 30)
+                Text("\(totBlk)").frame(width: 30)
+                Text("\(totTO)").frame(width: 30)
+                Text("\(totFGM)/\(totFGA)")
+                    .foregroundStyle(.secondary)
+                    .frame(width: 44)
+                    .padding(.trailing, 8)
+            }
+        }
+        .font(.caption.weight(.semibold))
+        .padding(.vertical, 10)
+        .background(Color(.tertiarySystemGroupedBackground))
+    }
+}
+
+// MARK: - Reusable Supporting Views
 
 struct DetailTeamColumn: View {
     var team: TeamScore
@@ -267,5 +386,39 @@ struct InfoRow: View {
         }
         .padding(.vertical, 13)
         .padding(.trailing, 16)
+    }
+}
+
+// MARK: - Card Style Helper
+
+struct CardSectionModifier: ViewModifier {
+    var colorScheme: ColorScheme
+    var radius: CGFloat
+
+    func body(content: Content) -> some View {
+        content
+            .background(Color(.secondarySystemGroupedBackground))
+            .clipShape(RoundedRectangle(cornerRadius: radius))
+            .overlay(
+                RoundedRectangle(cornerRadius: radius)
+                    .strokeBorder(
+                        Color.white.opacity(colorScheme == .dark ? 0.07 : 0),
+                        lineWidth: 1
+                    )
+            )
+            .shadow(
+                color: colorScheme == .dark
+                    ? .black.opacity(0.4) : .black.opacity(0.07),
+                radius: colorScheme == .dark ? 10 : 6,
+                y: 2
+            )
+    }
+}
+
+extension View {
+    func cardSection(colorScheme: ColorScheme, radius: CGFloat = 16)
+        -> some View
+    {
+        modifier(CardSectionModifier(colorScheme: colorScheme, radius: radius))
     }
 }

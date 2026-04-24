@@ -30,6 +30,28 @@ struct TeamScore: Identifiable {
   var seed: Int
 }
 
+struct PlayerGameStat: Identifiable {
+  var id = UUID()
+  var name: String
+  var position: String
+  var minutes: String
+  var points: Int
+  var rebounds: Int
+  var assists: Int
+  var steals: Int
+  var blocks: Int
+  var turnovers: Int
+  var fgm: Int
+  var fga: Int
+  var isStarter: Bool
+}
+
+struct TeamBoxScore {
+  var players: [PlayerGameStat]
+  var starters: [PlayerGameStat] { players.filter { $0.isStarter } }
+  var bench: [PlayerGameStat] { players.filter { !$0.isStarter } }
+}
+
 struct PlayoffGame: Identifiable {
   var id = UUID()
   var homeTeam: TeamScore
@@ -43,6 +65,8 @@ struct PlayoffGame: Identifiable {
   var quarter: String
   var clock: String
   var broadcast: String
+  var homeBoxScore: TeamBoxScore
+  var awayBoxScore: TeamBoxScore
 }
 
 enum PlayerPosition: String {
@@ -95,115 +119,108 @@ class NBAStore {
   }
 }
 
+let bosBoxScore = TeamBoxScore(players: [
+  PlayerGameStat(name: "Jayson Tatum", position: "SF", minutes: "36", points: 28, rebounds: 7, assists: 4, steals: 1, blocks: 1, turnovers: 2, fgm: 10, fga: 20, isStarter: true),
+  PlayerGameStat(name: "Jaylen Brown", position: "SG", minutes: "34", points: 22, rebounds: 5, assists: 3, steals: 2, blocks: 0, turnovers: 1, fgm: 8, fga: 17, isStarter: true),
+  PlayerGameStat(name: "Kristaps Porziņģis", position: "C", minutes: "28", points: 14, rebounds: 8, assists: 1, steals: 0, blocks: 3, turnovers: 1, fgm: 5, fga: 11, isStarter: true),
+  PlayerGameStat(name: "Jrue Holiday", position: "PG", minutes: "32", points: 12, rebounds: 4, assists: 6, steals: 3, blocks: 0, turnovers: 2, fgm: 4, fga: 10, isStarter: true),
+  PlayerGameStat(name: "Al Horford", position: "PF", minutes: "26", points: 8, rebounds: 9, assists: 2, steals: 1, blocks: 2, turnovers: 0, fgm: 3, fga: 7, isStarter: true),
+  PlayerGameStat(name: "Payton Pritchard", position: "PG", minutes: "22", points: 10, rebounds: 2, assists: 3, steals: 1, blocks: 0, turnovers: 1, fgm: 4, fga: 8, isStarter: false),
+  PlayerGameStat(name: "Sam Hauser", position: "SF", minutes: "18", points: 0, rebounds: 1, assists: 0, steals: 0, blocks: 0, turnovers: 0, fgm: 0, fga: 4, isStarter: false),
+])
+
+let miaBoxScore = TeamBoxScore(players: [
+  PlayerGameStat(name: "Bam Adebayo", position: "C", minutes: "37", points: 24, rebounds: 10, assists: 3, steals: 1, blocks: 2, turnovers: 2, fgm: 9, fga: 16, isStarter: true),
+  PlayerGameStat(name: "Tyler Herro", position: "SG", minutes: "35", points: 21, rebounds: 4, assists: 5, steals: 1, blocks: 0, turnovers: 3, fgm: 7, fga: 18, isStarter: true),
+  PlayerGameStat(name: "Jimmy Butler", position: "SF", minutes: "38", points: 19, rebounds: 6, assists: 4, steals: 2, blocks: 1, turnovers: 2, fgm: 7, fga: 15, isStarter: true),
+  PlayerGameStat(name: "Terry Rozier", position: "PG", minutes: "30", points: 14, rebounds: 3, assists: 4, steals: 1, blocks: 0, turnovers: 2, fgm: 5, fga: 12, isStarter: true),
+  PlayerGameStat(name: "Caleb Martin", position: "PF", minutes: "25", points: 6, rebounds: 5, assists: 1, steals: 1, blocks: 0, turnovers: 1, fgm: 2, fga: 6, isStarter: true),
+  PlayerGameStat(name: "Duncan Robinson", position: "SG", minutes: "20", points: 4, rebounds: 1, assists: 1, steals: 0, blocks: 0, turnovers: 0, fgm: 1, fga: 5, isStarter: false),
+])
+
+let okcBoxScore = TeamBoxScore(players: [
+  PlayerGameStat(name: "Shai Gilgeous-Alexander", position: "PG", minutes: "39", points: 38, rebounds: 5, assists: 7, steals: 2, blocks: 0, turnovers: 3, fgm: 13, fga: 24, isStarter: true),
+  PlayerGameStat(name: "Jalen Williams", position: "SG", minutes: "35", points: 22, rebounds: 4, assists: 4, steals: 1, blocks: 1, turnovers: 2, fgm: 8, fga: 16, isStarter: true),
+  PlayerGameStat(name: "Chet Holmgren", position: "C", minutes: "30", points: 18, rebounds: 9, assists: 2, steals: 0, blocks: 4, turnovers: 1, fgm: 6, fga: 13, isStarter: true),
+  PlayerGameStat(name: "Luguentz Dort", position: "SF", minutes: "28", points: 12, rebounds: 3, assists: 1, steals: 2, blocks: 0, turnovers: 1, fgm: 4, fga: 9, isStarter: true),
+  PlayerGameStat(name: "Isaiah Hartenstein", position: "PF", minutes: "24", points: 6, rebounds: 8, assists: 3, steals: 1, blocks: 1, turnovers: 0, fgm: 2, fga: 5, isStarter: true),
+  PlayerGameStat(name: "Josh Giddey", position: "PG", minutes: "20", points: 8, rebounds: 4, assists: 5, steals: 0, blocks: 0, turnovers: 2, fgm: 3, fga: 7, isStarter: false),
+  PlayerGameStat(name: "Aaron Wiggins", position: "SG", minutes: "14", points: 8, rebounds: 2, assists: 0, steals: 1, blocks: 0, turnovers: 0, fgm: 3, fga: 5, isStarter: false),
+])
+
+let dalBoxScore = TeamBoxScore(players: [
+  PlayerGameStat(name: "Luka Dončić", position: "PG", minutes: "40", points: 35, rebounds: 9, assists: 8, steals: 1, blocks: 0, turnovers: 4, fgm: 12, fga: 26, isStarter: true),
+  PlayerGameStat(name: "Kyrie Irving", position: "SG", minutes: "36", points: 26, rebounds: 4, assists: 5, steals: 2, blocks: 0, turnovers: 2, fgm: 10, fga: 20, isStarter: true),
+  PlayerGameStat(name: "P.J. Washington", position: "PF", minutes: "30", points: 14, rebounds: 7, assists: 1, steals: 1, blocks: 1, turnovers: 1, fgm: 5, fga: 10, isStarter: true),
+  PlayerGameStat(name: "Derrick Jones Jr.", position: "SF", minutes: "26", points: 10, rebounds: 5, assists: 1, steals: 2, blocks: 1, turnovers: 0, fgm: 4, fga: 8, isStarter: true),
+  PlayerGameStat(name: "Daniel Gafford", position: "C", minutes: "22", points: 8, rebounds: 6, assists: 1, steals: 0, blocks: 2, turnovers: 1, fgm: 4, fga: 5, isStarter: true),
+  PlayerGameStat(name: "Dante Exum", position: "PG", minutes: "16", points: 6, rebounds: 2, assists: 3, steals: 1, blocks: 0, turnovers: 1, fgm: 2, fga: 5, isStarter: false),
+  PlayerGameStat(name: "Maxi Kleber", position: "PF", minutes: "12", points: 8, rebounds: 3, assists: 0, steals: 0, blocks: 1, turnovers: 0, fgm: 3, fga: 5, isStarter: false),
+])
+
+let emptyBoxScore = TeamBoxScore(players: [])
+
 let sampleGames: [PlayoffGame] = [
   // LIVE
   PlayoffGame(
     homeTeam: TeamScore(name: "Boston Celtics", abbreviation: "BOS", primaryColor: "#007A33", score: 94, seriesWins: 3, record: "61-21", seed: 1),
     awayTeam: TeamScore(name: "Miami Heat", abbreviation: "MIA", primaryColor: "#98002E", score: 88, seriesWins: 1, record: "46-36", seed: 8),
-    status: .live,
-    round: .firstRound,
-    gameNumber: 5,
-    seriesLabel: "BOS leads 3-1",
-    arena: "TD Garden, Boston",
-    tipoff: "7:30 PM ET",
-    quarter: "Q3",
-    clock: "4:22",
-    broadcast: "ESPN"
+    status: .live, round: .firstRound, gameNumber: 5, seriesLabel: "BOS leads 3-1",
+    arena: "TD Garden, Boston", tipoff: "7:30 PM ET", quarter: "Q3", clock: "4:22", broadcast: "ESPN",
+    homeBoxScore: bosBoxScore, awayBoxScore: miaBoxScore
   ),
   PlayoffGame(
     homeTeam: TeamScore(name: "Oklahoma City Thunder", abbreviation: "OKC", primaryColor: "#007AC1", score: 112, seriesWins: 3, record: "68-14", seed: 1),
     awayTeam: TeamScore(name: "Dallas Mavericks", abbreviation: "DAL", primaryColor: "#00538C", score: 107, seriesWins: 2, record: "49-33", seed: 4),
-    status: .live,
-    round: .firstRound,
-    gameNumber: 6,
-    seriesLabel: "OKC leads 3-2",
-    arena: "Paycom Center, OKC",
-    tipoff: "9:30 PM ET",
-    quarter: "Q4",
-    clock: "1:48",
-    broadcast: "TNT"
+    status: .live, round: .firstRound, gameNumber: 6, seriesLabel: "OKC leads 3-2",
+    arena: "Paycom Center, OKC", tipoff: "9:30 PM ET", quarter: "Q4", clock: "1:48", broadcast: "TNT",
+    homeBoxScore: okcBoxScore, awayBoxScore: dalBoxScore
   ),
 
   // UPCOMING
   PlayoffGame(
     homeTeam: TeamScore(name: "Cleveland Cavaliers", abbreviation: "CLE", primaryColor: "#860038", score: 0, seriesWins: 3, record: "64-18", seed: 1),
     awayTeam: TeamScore(name: "Orlando Magic", abbreviation: "ORL", primaryColor: "#0077C0", score: 0, seriesWins: 1, record: "47-35", seed: 4),
-    status: .upcoming,
-    round: .firstRound,
-    gameNumber: 5,
-    seriesLabel: "CLE leads 3-1",
-    arena: "Rocket Mortgage FieldHouse",
-    tipoff: "Tomorrow · 7:00 PM ET",
-    quarter: "",
-    clock: "",
-    broadcast: "ESPN"
+    status: .upcoming, round: .firstRound, gameNumber: 5, seriesLabel: "CLE leads 3-1",
+    arena: "Rocket Mortgage FieldHouse", tipoff: "Tomorrow · 7:00 PM ET", quarter: "", clock: "", broadcast: "ESPN",
+    homeBoxScore: emptyBoxScore, awayBoxScore: emptyBoxScore
   ),
   PlayoffGame(
     homeTeam: TeamScore(name: "Denver Nuggets", abbreviation: "DEN", primaryColor: "#0E2240", score: 0, seriesWins: 2, record: "50-32", seed: 3),
     awayTeam: TeamScore(name: "LA Clippers", abbreviation: "LAC", primaryColor: "#C8102E", score: 0, seriesWins: 2, record: "47-35", seed: 6),
-    status: .upcoming,
-    round: .firstRound,
-    gameNumber: 5,
-    seriesLabel: "Series tied 2-2",
-    arena: "Ball Arena, Denver",
-    tipoff: "Tomorrow · 9:30 PM ET",
-    quarter: "",
-    clock: "",
-    broadcast: "TNT"
+    status: .upcoming, round: .firstRound, gameNumber: 5, seriesLabel: "Series tied 2-2",
+    arena: "Ball Arena, Denver", tipoff: "Tomorrow · 9:30 PM ET", quarter: "", clock: "", broadcast: "TNT",
+    homeBoxScore: emptyBoxScore, awayBoxScore: emptyBoxScore
   ),
   PlayoffGame(
     homeTeam: TeamScore(name: "New York Knicks", abbreviation: "NYK", primaryColor: "#006BB6", score: 0, seriesWins: 3, record: "51-31", seed: 2),
     awayTeam: TeamScore(name: "Detroit Pistons", abbreviation: "DET", primaryColor: "#C8102E", score: 0, seriesWins: 0, record: "42-40", seed: 7),
-    status: .upcoming,
-    round: .firstRound,
-    gameNumber: 4,
-    seriesLabel: "NYK leads 3-0",
-    arena: "Madison Square Garden",
-    tipoff: "Thu · 7:30 PM ET",
-    quarter: "",
-    clock: "",
-    broadcast: "ABC"
+    status: .upcoming, round: .firstRound, gameNumber: 4, seriesLabel: "NYK leads 3-0",
+    arena: "Madison Square Garden", tipoff: "Thu · 7:30 PM ET", quarter: "", clock: "", broadcast: "ABC",
+    homeBoxScore: emptyBoxScore, awayBoxScore: emptyBoxScore
   ),
 
   // FINAL
   PlayoffGame(
     homeTeam: TeamScore(name: "Boston Celtics", abbreviation: "BOS", primaryColor: "#007A33", score: 110, seriesWins: 3, record: "61-21", seed: 1),
     awayTeam: TeamScore(name: "Miami Heat", abbreviation: "MIA", primaryColor: "#98002E", score: 98, seriesWins: 0, record: "46-36", seed: 8),
-    status: .final_,
-    round: .firstRound,
-    gameNumber: 4,
-    seriesLabel: "BOS leads 3-1",
-    arena: "TD Garden, Boston",
-    tipoff: "Apr 21",
-    quarter: "Final",
-    clock: "",
-    broadcast: "ESPN"
+    status: .final_, round: .firstRound, gameNumber: 4, seriesLabel: "BOS leads 3-1",
+    arena: "TD Garden, Boston", tipoff: "Apr 21", quarter: "Final", clock: "", broadcast: "ESPN",
+    homeBoxScore: bosBoxScore, awayBoxScore: miaBoxScore
   ),
   PlayoffGame(
     homeTeam: TeamScore(name: "Oklahoma City Thunder", abbreviation: "OKC", primaryColor: "#007AC1", score: 118, seriesWins: 3, record: "68-14", seed: 1),
     awayTeam: TeamScore(name: "Dallas Mavericks", abbreviation: "DAL", primaryColor: "#00538C", score: 104, seriesWins: 1, record: "49-33", seed: 4),
-    status: .final_,
-    round: .firstRound,
-    gameNumber: 4,
-    seriesLabel: "OKC leads 3-1",
-    arena: "American Airlines Center",
-    tipoff: "Apr 21",
-    quarter: "Final",
-    clock: "",
-    broadcast: "TNT"
+    status: .final_, round: .firstRound, gameNumber: 4, seriesLabel: "OKC leads 3-1",
+    arena: "American Airlines Center", tipoff: "Apr 21", quarter: "Final", clock: "", broadcast: "TNT",
+    homeBoxScore: okcBoxScore, awayBoxScore: dalBoxScore
   ),
   PlayoffGame(
     homeTeam: TeamScore(name: "Indiana Pacers", abbreviation: "IND", primaryColor: "#002D62", score: 121, seriesWins: 1, record: "50-32", seed: 5),
     awayTeam: TeamScore(name: "Milwaukee Bucks", abbreviation: "MIL", primaryColor: "#00471B", score: 116, seriesWins: 2, record: "48-34", seed: 4),
-    status: .final_,
-    round: .firstRound,
-    gameNumber: 4,
-    seriesLabel: "MIL leads 2-1",
-    arena: "Gainbridge Fieldhouse",
-    tipoff: "Apr 20",
-    quarter: "Final",
-    clock: "",
-    broadcast: "ESPN"
+    status: .final_, round: .firstRound, gameNumber: 4, seriesLabel: "MIL leads 2-1",
+    arena: "Gainbridge Fieldhouse", tipoff: "Apr 20", quarter: "Final", clock: "", broadcast: "ESPN",
+    homeBoxScore: emptyBoxScore, awayBoxScore: emptyBoxScore
   ),
 ]
 
