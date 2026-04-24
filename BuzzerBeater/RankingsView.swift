@@ -63,10 +63,10 @@ struct PlayerRow: View {
     @State private var bounce = false
 
     var body: some View {
-        HStack(spacing: 14) {
+        HStack(spacing: 8) {
             // Rank
             Text("\(player.rank)")
-                .font(.caption.weight(.bold))
+                .font(.subheadline.weight(.bold))
                 .foregroundStyle(.secondary)
                 .frame(width: 20, alignment: .center)
 
