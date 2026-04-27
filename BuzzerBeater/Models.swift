@@ -80,6 +80,19 @@ struct NewsArticle: Identifiable {
   var symbolName: String
 }
 
+enum NotificationKind {
+  case liveGame, injury, trade, news, followedPlayer
+}
+
+struct AppNotification: Identifiable {
+  var id = UUID()
+  var title: String
+  var body: String
+  var timeAgo: String
+  var kind: NotificationKind
+  var isRead: Bool = false
+}
+
 enum NewsCategory: String, CaseIterable {
   case all = "All"
   case playoffs = "Playoffs"
@@ -125,6 +138,21 @@ class NBAStore {
 
   var players: [NBAPlayer] = samplePlayers
   var articles: [NewsArticle] = sampleArticles
+  var notifications: [AppNotification] = sampleNotifications
+
+  var unreadCount: Int { notifications.filter { !$0.isRead }.count }
+
+  func markAllRead() {
+    for i in notifications.indices {
+      notifications[i].isRead = true
+    }
+  }
+
+  func markRead(_ notification: AppNotification) {
+    if let i = notifications.firstIndex(where: { $0.id == notification.id }) {
+      notifications[i].isRead = true
+    }
+  }
 
   func toggleFollow(_ player: NBAPlayer) {
     if followedPlayerIDs.contains(player.id) {
@@ -244,6 +272,19 @@ let sampleGames: [PlayoffGame] = [
   ),
 ]
 
+let sampleNotifications: [AppNotification] = [
+  AppNotification(title: "OKC vs DAL — Q4 Update", body: "SGA just hit a pull-up three to give OKC a 5-point lead with 1:48 left.", timeAgo: "Just now", kind: .liveGame),
+  AppNotification(title: "BOS vs MIA — Score Alert", body: "Boston leads Miami 94–88 heading into the 4th quarter.", timeAgo: "2m ago", kind: .liveGame),
+  AppNotification(title: "Injury Report", body: "Luka Dončić is listed as questionable for Game 7 with left ankle soreness.", timeAgo: "1h ago", kind: .injury),
+  AppNotification(title: "You follow Shai Gilgeous-Alexander", body: "SGA dropped 38 points in Game 6 to keep OKC's season alive.", timeAgo: "2h ago", kind: .followedPlayer),
+  AppNotification(title: "Nikola Jokić wins MVP", body: "The Nuggets center takes home his third MVP award in four seasons.", timeAgo: "3h ago", kind: .news),
+  AppNotification(title: "You follow Jayson Tatum", body: "Tatum posted 28 pts, 7 reb, 4 ast in Boston's Game 5 win over Miami.", timeAgo: "4h ago", kind: .followedPlayer),
+  AppNotification(title: "Trade Rumor", body: "Warriors are exploring summer deals to pair a second star alongside Steph Curry.", timeAgo: "5h ago", kind: .trade),
+  AppNotification(title: "Giannis cleared to play", body: "Antetokounmpo has been cleared for Game 4 after missing two games.", timeAgo: "8h ago", kind: .injury, isRead: true),
+  AppNotification(title: "Knicks one win from sweep", body: "New York leads Detroit 3-0 and can close out the series tomorrow night.", timeAgo: "Yesterday", kind: .news, isRead: true),
+  AppNotification(title: "Anthony Edwards — All-NBA", body: "Ant earns his second straight All-NBA First Team selection.", timeAgo: "Yesterday", kind: .followedPlayer, isRead: true),
+]
+
 let sampleArticles: [NewsArticle] = [
   NewsArticle(
     headline: "SGA Drops 38 in OKC's Must-Win Game 6 Against Dallas",
@@ -349,3 +390,4 @@ let samplePlayers: [NBAPlayer] = [
   NBAPlayer(name: "Jalen Brunson", team: "New York Knicks", teamColor: "#006BB6", position: .pointGuard, rank: 9, ppg: 27.4, rpg: 3.6, apg: 6.7, bio: "Jalen Brunson's rise from mid-level exception signing to New York icon is one of the great stories in recent NBA history. A cerebral scorer with elite footwork, Brunson has become the heartbeat of a Knicks team with championship aspirations.", age: 28, height: "6'1\"", college: "Villanova", draftYear: 2018, nationality: "🇺🇸"),
   NBAPlayer(name: "Tyrese Haliburton", team: "Indiana Pacers", teamColor: "#002D62", position: .pointGuard, rank: 10, ppg: 21.4, rpg: 4.3, apg: 10.9, bio: "Tyrese Haliburton is arguably the best pure point guard in the NBA, orchestrating Indiana's fast-paced offense with pinpoint precision. His elite court vision and shooting ability off movement make him one of the most dangerous playmakers in the league.", age: 25, height: "6'5\"", college: "Iowa State", draftYear: 2020, nationality: "🇺🇸"),
 ]
+

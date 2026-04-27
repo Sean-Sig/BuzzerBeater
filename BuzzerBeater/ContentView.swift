@@ -7,105 +7,42 @@
 
 import SwiftUI
 
+enum Tab { case scores, rankings, news }
+
 struct ContentView: View {
     @State var store = NBAStore()
+    @State private var showProfile = false
+    @State private var showNotifications = false
+    @State private var selectedTab: Tab = .scores
 
-    var body: some View {
-        TabView {
-            ScoresView(store: store)
-                .tabItem { Label("Scores", systemImage: "basketball.fill") }
-            NewsView(store: store)
-                .tabItem { Label("News", systemImage: "newspaper.fill") }
-            RankingsView(store: store)
-                .tabItem { Label("Rankings", systemImage: "list.number") }
+    var navigationTitle: String {
+        switch selectedTab {
+        case .scores: return "NBA Playoffs"
+        case .rankings: return "Player Rankings"
+        case .news: return "NBA News"
         }
     }
-}
-
-struct ScoresView: View {
-    var store: NBAStore
-    @Environment(\.colorScheme) var colorScheme
-    @State private var showProfile = false
 
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 28) {
-
-                    // MARK: Live Games
-                    if !store.liveGames.isEmpty {
-                        SectionHeader(
-                            title: "Live Now",
-                            systemImage: "dot.radiowaves.left.and.right",
-                            tint: .red
-                        )
-                        VStack(spacing: 14) {
-                            ForEach(store.liveGames) { game in
-                                NavigationLink(
-                                    destination: GameDetailView(game: game)
-                                ) {
-                                    LiveGameCard(game: game)
-                                }
-                                .buttonStyle(.plain)
-                            }
-                        }
-                        .padding(.horizontal)
-                    }
-
-                    // MARK: Upcoming Games
-                    if !store.upcomingGames.isEmpty {
-                        SectionHeader(
-                            title: "Upcoming",
-                            systemImage: "calendar",
-                            tint: .blue
-                        )
-                        .padding(.horizontal)
-                        ScrollView(.horizontal, showsIndicators: false) {
-                            HStack(spacing: 14) {
-                                ForEach(store.upcomingGames) { game in
-                                    NavigationLink(
-                                        destination: GameDetailView(game: game)
-                                    ) {
-                                        UpcomingGameCard(game: game)
-                                    }
-                                    .buttonStyle(.plain)
-                                }
-                            }
-                            .padding(.horizontal)
-                        }
-                    }
-
-                    // MARK: Past Games
-                    if !store.pastGames.isEmpty {
-                        SectionHeader(
-                            title: "Results",
-                            systemImage: "flag.checkered",
-                            tint: .secondary
-                        )
-                        .padding(.horizontal)
-                        ScrollView(.horizontal, showsIndicators: false) {
-                            HStack(spacing: 14) {
-                                ForEach(store.pastGames) { game in
-                                    NavigationLink(
-                                        destination: GameDetailView(game: game)
-                                    ) {
-                                        PastGameCard(game: game)
-                                    }
-                                    .buttonStyle(.plain)
-                                }
-                            }
-                            .padding(.horizontal)
-                        }
-                    }
-
-                    Spacer(minLength: 32)
-                }
-                .padding(.top, 8)
-                .frame(maxWidth: .infinity, alignment: .leading)
+            TabView(selection: $selectedTab) {
+                ScoresView(store: store)
+                    .tag(Tab.scores)
+                    .tabItem { Label("Scores", systemImage: "basketball.fill") }
+                NewsView(store: store)
+                    .tag(Tab.news)
+                    .tabItem { Label("News", systemImage: "newspaper.fill") }
+                RankingsView(store: store)
+                    .tag(Tab.rankings)
+                    .tabItem { Label("Rankings", systemImage: "list.number") }
             }
-            .background(Color(.systemGroupedBackground))
-            .navigationTitle("NBA Playoffs")
-            .navigationBarTitleDisplayMode(.large)
+            .navigationTitle(navigationTitle)
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbarBackground(
+                Color(.secondarySystemGroupedBackground),
+                for: .navigationBar
+            )
+            .toolbarBackground(.visible, for: .navigationBar)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button {
@@ -116,11 +53,114 @@ struct ScoresView: View {
                     }
                     .accessibilityLabel("Settings")
                 }
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        showNotifications = true
+                    } label: {
+                        ZStack(alignment: .topTrailing) {
+                            Image(systemName: "bell.fill")
+                                .foregroundStyle(.primary)
+                            if store.unreadCount > 0 {
+                                Circle()
+                                    .fill(.red)
+                                    .frame(width: 8, height: 8)
+                                    .offset(x: 3, y: -3)
+                            }
+                        }
+                    }
+                    .accessibilityLabel("Notifications")
+                }
             }
             .sheet(isPresented: $showProfile) {
                 ProfileSheetView()
             }
+            .sheet(isPresented: $showNotifications) {
+                NotificationsView(store: store)
+            }
         }
+    }
+}
+
+struct ScoresView: View {
+    var store: NBAStore
+    @Environment(\.colorScheme) var colorScheme
+
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 28) {
+
+                // MARK: Live Games
+                if !store.liveGames.isEmpty {
+                    SectionHeader(
+                        title: "Live Now",
+                        systemImage: "dot.radiowaves.left.and.right",
+                        tint: .red
+                    )
+                    VStack(spacing: 14) {
+                        ForEach(store.liveGames) { game in
+                            NavigationLink(
+                                destination: GameDetailView(game: game)
+                            ) {
+                                LiveGameCard(game: game)
+                            }
+                            .buttonStyle(.plain)
+                        }
+                    }
+                    .padding(.horizontal)
+                }
+
+                // MARK: Upcoming Games
+                if !store.upcomingGames.isEmpty {
+                    SectionHeader(
+                        title: "Upcoming",
+                        systemImage: "calendar",
+                        tint: .blue
+                    )
+                    .padding(.horizontal)
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 14) {
+                            ForEach(store.upcomingGames) { game in
+                                NavigationLink(
+                                    destination: GameDetailView(game: game)
+                                ) {
+                                    UpcomingGameCard(game: game)
+                                }
+                                .buttonStyle(.plain)
+                            }
+                        }
+                        .padding(.horizontal)
+                    }
+                }
+
+                // MARK: Past Games
+                if !store.pastGames.isEmpty {
+                    SectionHeader(
+                        title: "Results",
+                        systemImage: "flag.checkered",
+                        tint: .secondary
+                    )
+                    .padding(.horizontal)
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 14) {
+                            ForEach(store.pastGames) { game in
+                                NavigationLink(
+                                    destination: GameDetailView(game: game)
+                                ) {
+                                    PastGameCard(game: game)
+                                }
+                                .buttonStyle(.plain)
+                            }
+                        }
+                        .padding(.horizontal)
+                    }
+                }
+
+                Spacer(minLength: 32)
+            }
+            .padding(.top, 8)
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .background(Color(.systemGroupedBackground))
     }
 }
 

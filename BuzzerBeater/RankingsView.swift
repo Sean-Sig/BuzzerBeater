@@ -51,8 +51,6 @@ struct RankingsView: View {
                 .padding()
             }
             .background(Color(.systemGroupedBackground))
-            .navigationTitle("Player Rankings")
-            .navigationBarTitleDisplayMode(.large)
         }
     }
 }

@@ -91,8 +91,6 @@ struct NewsView: View {
                 .padding(.top, 4)
             }
             .background(Color(.systemGroupedBackground))
-            .navigationTitle("NBA News")
-            .navigationBarTitleDisplayMode(.large)
         }
     }
 }
