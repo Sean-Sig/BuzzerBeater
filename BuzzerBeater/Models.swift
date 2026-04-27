@@ -391,3 +391,13 @@ let samplePlayers: [NBAPlayer] = [
   NBAPlayer(name: "Tyrese Haliburton", team: "Indiana Pacers", teamColor: "#002D62", position: .pointGuard, rank: 10, ppg: 21.4, rpg: 4.3, apg: 10.9, bio: "Tyrese Haliburton is arguably the best pure point guard in the NBA, orchestrating Indiana's fast-paced offense with pinpoint precision. His elite court vision and shooting ability off movement make him one of the most dangerous playmakers in the league.", age: 25, height: "6'5\"", college: "Iowa State", draftYear: 2020, nationality: "🇺🇸"),
 ]
 
+// MARK: - Chat Tab
+
+struct ChatMessage: Identifiable {
+    var id = UUID()
+    var author: String
+    var avatarColor: String
+    var text: String
+    var timeAgo: String
+    var isMe: Bool
+}
