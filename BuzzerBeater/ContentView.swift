@@ -14,10 +14,10 @@ struct ContentView: View {
         TabView {
             ScoresView(store: store)
                 .tabItem { Label("Scores", systemImage: "basketball.fill") }
-            RankingsView(store: store)
-                .tabItem { Label("Rankings", systemImage: "list.number") }
             NewsView(store: store)
                 .tabItem { Label("News", systemImage: "newspaper.fill") }
+            RankingsView(store: store)
+                .tabItem { Label("Rankings", systemImage: "list.number") }
         }
     }
 }
