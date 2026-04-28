@@ -399,7 +399,6 @@ struct ChatTab: View {
             .padding(.horizontal, 14)
             .padding(.vertical, 10)
             .background(Color(.secondarySystemGroupedBackground))
-//            .padding(.bottom, 24)
         }
     }
 
